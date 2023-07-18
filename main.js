@@ -41,13 +41,15 @@ const optionB = document.getElementById("optionB");
 const optionC = document.getElementById("optionC");
 const optionD = document.getElementById("optionD");
 const submit = document.getElementById("submit");
+const backBtn = document.getElementById('backBtn');
 
 let index = 0;
 let score = 0;
+let globalIndex = 0;
+
 
 swap();
 
-// render();
 
 function render() {
   deselect();
@@ -59,6 +61,10 @@ function render() {
   optionB.innerText = currentmcq.b;
   optionC.innerText = currentmcq.c;
   optionD.innerText = currentmcq.d;
+
+  if (index != 0) {
+    backBtn.style.display = "block";
+  }
 }
 
 function deselect() {
@@ -92,6 +98,7 @@ submit.addEventListener("click", () => {
             <h2>You answered ${score}/${arr.length} questions correctly</h2>
             <button onclick = "location.reload()" > Reload </button>
             `;
+
     }
   } else {
     alert("Please select one option");
@@ -110,6 +117,9 @@ function swap() {
 
 
 
+const userEmail = document.getElementById('useremail')
+const userName = document.getElementById('username')
+
 
 const quizApp = document.getElementById('quiz-app')
 
@@ -119,21 +129,66 @@ inputform.addEventListener('submit', (e) => {
 
   e.preventDefault()
 
-  const useremail = document.getElementById('useremail').value
-  const username = document.getElementById('username').value
+  const useremail = userEmail.value
+  const username = userName.value
   const usernamepara = document.getElementById('usernamepara')
 
-  setitem(useremail, username)
 
-  usernamepara.innerText = `Hey, ${username}`
+  let check = false;
+  for(let i=0; i<localStorage.length; i++){
+    let j = localStorage.key(i)
+    if(j == useremail){
+      check = true;
+      break;
+    }
+  }
 
-  quizApp.style.display = "none";
-  box.style.display = "block";
-  render();
+
+  if (check == false){
+    quizApp.style.display = "none";
+    box.style.display = "block";
+    render();
+
+    setitem(useremail, username)
+
+    usernamepara.innerText = `Hey, ${username}`
+  }
+  else {
+    quizApp.style.display = "none";
+    box.style.display = "block";
+    box.innerHTML = `
+                        <h2>You answered ${score}/${arr.length} questions correctly</h2>
+                        <button onclick = "location.reload()" > Reload </button>
+                        `;
+  }
 
 })
 
 
-function setitem(useremail, username){
-  localStorage.setItem(useremail,username);
+function setitem(useremail, username) {
+  localStorage.setItem(useremail, username);
 }
+
+
+
+
+backBtn.addEventListener("click", ()=>{
+  
+    const currentmcq = arr[globalIndex];
+    index = globalIndex;
+    globalIndex--;
+  
+    question.innerText = currentmcq.question;
+    optionA.innerText = currentmcq.a;
+    optionB.innerText = currentmcq.b;
+    optionC.innerText = currentmcq.c;
+    optionD.innerText = currentmcq.d;
+  
+    if (index != 0) {
+      backBtn.style.display = "block";
+    }
+    else{
+      backBtn.style.display = "none";
+    }
+})
+

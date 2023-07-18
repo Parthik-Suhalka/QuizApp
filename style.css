@@ -26,6 +26,14 @@ body{
     margin-left: 1rem;
 }
 
+#backBtn{
+    display: none;
+    width: 20%;
+    margin : 1rem;
+    text-align: center;
+    border-radius: 20px;
+}
+
 #usernamepara{
     text-align: center;
     font-size: 1.3rem;
