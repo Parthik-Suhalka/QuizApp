@@ -42,10 +42,16 @@ const optionC = document.getElementById("optionC");
 const optionD = document.getElementById("optionD");
 const submit = document.getElementById("submit");
 const backBtn = document.getElementById('backBtn');
+const quizApp = document.getElementById('quiz-app');
+const inputform = document.getElementById('inputform');
+const userEmail = document.getElementById('useremail');
+const userName = document.getElementById('username');
+const usernamepara = document.getElementById('usernamepara');
 
 let index = 0;
 let score = 0;
 let globalIndex = 0;
+let obj;
 
 
 swap();
@@ -82,6 +88,10 @@ function selected() {
 }
 
 submit.addEventListener("click", () => {
+
+  const useremail = userEmail.value
+  const username = userName.value
+
   let answer = selected();
 
   if (answer) {
@@ -89,11 +99,25 @@ submit.addEventListener("click", () => {
       score++;
     }
 
+    globalIndex = index
+
     index++;
+
+    obj = {
+      username,
+      useremail,
+      score
+    }
+
+
 
     if (index < arr.length) {
       render();
     } else {
+
+      localStorage.setItem(useremail, JSON.stringify(obj));
+
+
       box.innerHTML = `
             <h2>You answered ${score}/${arr.length} questions correctly</h2>
             <button onclick = "location.reload()" > Reload </button>
@@ -117,13 +141,8 @@ function swap() {
 
 
 
-const userEmail = document.getElementById('useremail')
-const userName = document.getElementById('username')
 
 
-const quizApp = document.getElementById('quiz-app')
-
-const inputform = document.getElementById('inputform')
 
 inputform.addEventListener('submit', (e) => {
 
@@ -131,64 +150,87 @@ inputform.addEventListener('submit', (e) => {
 
   const useremail = userEmail.value
   const username = userName.value
-  const usernamepara = document.getElementById('usernamepara')
 
-
-  let check = false;
-  for(let i=0; i<localStorage.length; i++){
-    let j = localStorage.key(i)
-    if(j == useremail){
-      check = true;
-      break;
-    }
-  }
-
-
-  if (check == false){
-    quizApp.style.display = "none";
-    box.style.display = "block";
-    render();
-
-    setitem(useremail, username)
-
-    usernamepara.innerText = `Hey, ${username}`
+  if (localStorage.length >= 3) {
+    alert("You have reached max limit of attending the quiz")
+    window.close()
   }
   else {
-    quizApp.style.display = "none";
-    box.style.display = "block";
-    box.innerHTML = `
-                        <h2>You answered ${score}/${arr.length} questions correctly</h2>
-                        <button onclick = "location.reload()" > Reload </button>
-                        `;
+
+    let check = false;
+    for (let i = 0; i < localStorage.length; i++) {
+      if (localStorage.key(i) == useremail) {
+        check = true;
+        break;
+      }
+    }
+
+
+    if (check == false) {
+      quizApp.style.display = "none";
+      box.style.display = "block";
+      render();
+
+      usernamepara.innerText = `Hey, ${username}`
+    }
+    else {
+
+      box.innerHTML = ``
+
+      for (let i = 0; i < localStorage.length; i++) {
+        let x = localStorage.key(i)
+        let user = localStorage.getItem(x)
+        user = JSON.parse(user)
+
+
+        box.innerHTML += `
+                         <table>
+                            <tr>
+                              <th>Username</th>
+                              <th>Email</th>
+                              <th>Score</th>
+                            </tr>
+                            <tr>
+                              <td>${user.username}</td>
+                              <td>${user.useremail}</td>
+                              <td>${user.score}</td>
+                            </tr>
+                          </table>   
+                         `;
+      }
+
+      box.innerHTML += `<button onclick = "location.reload()" > Reload </button>`
+
+
+      quizApp.style.display = "none";
+      box.style.display = "block";
+
+          
+
+    }
+
   }
 
+
 })
 
 
-function setitem(useremail, username) {
-  localStorage.setItem(useremail, username);
-}
+backBtn.addEventListener("click", () => {
 
+  const currentmcq = arr[globalIndex];
+  index = globalIndex;
+  globalIndex--;
 
+  question.innerText = currentmcq.question;
+  optionA.innerText = currentmcq.a;
+  optionB.innerText = currentmcq.b;
+  optionC.innerText = currentmcq.c;
+  optionD.innerText = currentmcq.d;
 
-
-backBtn.addEventListener("click", ()=>{
-  
-    const currentmcq = arr[globalIndex];
-    index = globalIndex;
-    globalIndex--;
-  
-    question.innerText = currentmcq.question;
-    optionA.innerText = currentmcq.a;
-    optionB.innerText = currentmcq.b;
-    optionC.innerText = currentmcq.c;
-    optionD.innerText = currentmcq.d;
-  
-    if (index != 0) {
-      backBtn.style.display = "block";
-    }
-    else{
-      backBtn.style.display = "none";
-    }
+  if (index != 0) {
+    backBtn.style.display = "block";
+  }
+  else {
+    backBtn.style.display = "none";
+  }
 })
-

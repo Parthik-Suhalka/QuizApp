@@ -77,3 +77,10 @@ button{
 button:hover{
     background-color: purple;
 }
+
+table, th, td {
+    font-size: 2rem;
+    border: 3px solid;
+    padding: 1rem;
+    width: 100%;
+}
