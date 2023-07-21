@@ -52,15 +52,22 @@ let index = 0;
 let score = 0;
 let prevIndex = 0;
 let obj = {};
+let ansSelected = [];
 
 
 swap();
 
-let array = [...arr]
-
 
 function render() {
   deselect();
+
+  if (ansSelected[index] != undefined) {
+    options.forEach(option => {
+      if (option.id == ansSelected[index]) {
+        option.checked = true;
+      }
+    })
+  }
 
   const currentmcq = arr[index];
 
@@ -106,6 +113,7 @@ submit.addEventListener("click", () => {
       obj.selectedOpt[index] = answer
     }
 
+    ansSelected[index] = answer
 
     prevIndex = index
 
@@ -124,8 +132,8 @@ submit.addEventListener("click", () => {
       data = JSON.parse(data)
       selectedOpt = data.selectedOpt
 
-      for(let i=0; i<array.length; i++){
-        if (selectedOpt[i] === array[i].ans) {
+      for (let i = 0; i < arr.length; i++) {
+        if (selectedOpt[i] === arr[i].ans) {
           score++;
         }
       }
@@ -144,6 +152,7 @@ submit.addEventListener("click", () => {
     alert("Please select one option");
   }
 });
+
 
 function swap() {
   for (var i = arr.length - 1; i > 0; i--) {
@@ -178,6 +187,7 @@ inputform.addEventListener('submit', (e) => {
   else {
     if (localStorage.length >= 10) {
       alert("You have reached max limit of attending the quiz")
+      localStorage.clear()
       window.close()
     }
     else {
@@ -271,7 +281,7 @@ backBtn.addEventListener("click", () => {
 
 
   options.forEach((option) => {
-    if(option.id == selectedOpt){
+    if (option.id == selectedOpt) {
       option.checked = true;
     }
   })
