@@ -50,11 +50,13 @@ const usernamepara = document.getElementById('usernamepara');
 
 let index = 0;
 let score = 0;
-let globalIndex = 0;
-let obj;
+let prevIndex = 0;
+let obj = {};
 
 
 swap();
+
+let array = [...arr]
 
 
 function render() {
@@ -90,31 +92,45 @@ function selected() {
 submit.addEventListener("click", () => {
 
   const useremail = userEmail.value
-  const username = userName.value
 
   let answer = selected();
 
   if (answer) {
-    if (answer === arr[index].ans) {
-      score++;
+
+    if (!obj.selectedOpt) {
+      obj.selectedOpt = {
+        [index]: answer
+      }
+    }
+    else {
+      obj.selectedOpt[index] = answer
     }
 
-    globalIndex = index
+
+    prevIndex = index
 
     index++;
 
-    obj = {
-      username,
-      useremail,
-      score
-    }
-
+    obj.prevIndex = prevIndex;
+    obj.index = index;
+    localStorage.setItem(useremail, JSON.stringify(obj));
 
 
     if (index < arr.length) {
       render();
     } else {
 
+      let data = localStorage.getItem(useremail)
+      data = JSON.parse(data)
+      selectedOpt = data.selectedOpt
+
+      for(let i=0; i<array.length; i++){
+        if (selectedOpt[i] === array[i].ans) {
+          score++;
+        }
+      }
+
+      obj.score = score
       localStorage.setItem(useremail, JSON.stringify(obj));
 
 
@@ -151,61 +167,90 @@ inputform.addEventListener('submit', (e) => {
   const useremail = userEmail.value
   const username = userName.value
 
-  if (localStorage.length >= 3) {
-    alert("You have reached max limit of attending the quiz")
-    window.close()
+  let validation = useremail.toLowerCase().match(
+    /^[A-Za-z\._\-0-9]*[@][A-Za-z]*[\.][a-z]{2,4}$/
+  );
+
+  if (!validation) {
+    alert("Please Enter valid email address")
+    location.reload()
   }
   else {
-
-    let check = false;
-    for (let i = 0; i < localStorage.length; i++) {
-      if (localStorage.key(i) == useremail) {
-        check = true;
-        break;
-      }
-    }
-
-
-    if (check == false) {
-      quizApp.style.display = "none";
-      box.style.display = "block";
-      render();
-
-      usernamepara.innerText = `Hey, ${username}`
+    if (localStorage.length >= 10) {
+      alert("You have reached max limit of attending the quiz")
+      window.close()
     }
     else {
 
-      box.innerHTML = ``
-
+      let check = false;
       for (let i = 0; i < localStorage.length; i++) {
-        let x = localStorage.key(i)
-        let user = localStorage.getItem(x)
-        user = JSON.parse(user)
-
-
-        box.innerHTML += `
-                         <table>
-                            <tr>
-                              <th>Username</th>
-                              <th>Email</th>
-                              <th>Score</th>
-                            </tr>
-                            <tr>
-                              <td>${user.username}</td>
-                              <td>${user.useremail}</td>
-                              <td>${user.score}</td>
-                            </tr>
-                          </table>   
-                         `;
+        if (localStorage.key(i) == useremail) {
+          check = true;
+          break;
+        }
       }
 
-      box.innerHTML += `<button onclick = "location.reload()" > Reload </button>`
+
+      if (check == false) {
+
+        obj = { username, useremail }
+        localStorage.setItem(useremail, JSON.stringify(obj));
+
+        quizApp.style.display = "none";
+        box.style.display = "block";
+        render();
+
+        usernamepara.innerText = `Hey, ${username}`
+      }
+      else {
+
+        box.innerHTML = ``
+
+        let table = document.createElement('table')
+        let tr = document.createElement('tr')
+        let th1 = document.createElement('th')
+        let th2 = document.createElement('th')
+        let th3 = document.createElement('th')
 
 
-      quizApp.style.display = "none";
-      box.style.display = "block";
+        box.insertAdjacentElement("afterbegin", table)
+        table.insertAdjacentElement("afterbegin", tr)
+        tr.insertAdjacentElement("afterbegin", th1)
+        th1.innerText = "Username"
+        tr.insertAdjacentElement("beforeend", th2)
+        th2.innerText = "Email"
+        tr.insertAdjacentElement("beforeend", th3)
+        th3.innerText = "Score"
 
-          
+
+        for (let i = 0; i < localStorage.length; i++) {
+          let x = localStorage.key(i)
+          let user = localStorage.getItem(x)
+          user = JSON.parse(user)
+
+          let tr = document.createElement('tr')
+          let td1 = document.createElement('td')
+          let td2 = document.createElement('td')
+          let td3 = document.createElement('td')
+
+          table.insertAdjacentElement("beforeend", tr)
+          tr.insertAdjacentElement("afterbegin", td1)
+          td1.innerHTML = `${user.username}`
+          tr.insertAdjacentElement("beforeend", td2)
+          td2.innerHTML = `${user.useremail}`
+          tr.insertAdjacentElement("beforeend", td3)
+          td3.innerHTML = `${user.score}`
+
+        }
+
+        box.innerHTML += `<button onclick = "location.reload()" > Reload </button>`
+
+
+        quizApp.style.display = "none";
+        box.style.display = "block";
+
+
+      }
 
     }
 
@@ -217,9 +262,22 @@ inputform.addEventListener('submit', (e) => {
 
 backBtn.addEventListener("click", () => {
 
-  const currentmcq = arr[globalIndex];
-  index = globalIndex;
-  globalIndex--;
+  const useremail = userEmail.value
+
+  let data = localStorage.getItem(useremail)
+  data = JSON.parse(data)
+  prevIndex = data.prevIndex;
+  selectedOpt = data.selectedOpt[prevIndex]
+
+
+  options.forEach((option) => {
+    if(option.id == selectedOpt){
+      option.checked = true;
+    }
+  })
+
+
+  const currentmcq = arr[prevIndex];
 
   question.innerText = currentmcq.question;
   optionA.innerText = currentmcq.a;
@@ -227,10 +285,20 @@ backBtn.addEventListener("click", () => {
   optionC.innerText = currentmcq.c;
   optionD.innerText = currentmcq.d;
 
-  if (index != 0) {
+  if (prevIndex != 0) {
     backBtn.style.display = "block";
   }
   else {
     backBtn.style.display = "none";
   }
+
+
+  index = prevIndex;
+  prevIndex--;
+
+
+  obj.prevIndex = prevIndex;
+  obj.index = index;
+  localStorage.setItem(useremail, JSON.stringify(obj));
+
 })

@@ -78,9 +78,22 @@ button:hover{
     background-color: purple;
 }
 
-table, th, td {
+table{
+    padding: 1rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+th{
     font-size: 2rem;
     border: 3px solid;
     padding: 1rem;
-    width: 100%;
 }
+
+td{
+    font-size: 1.5rem;
+    border: 3px solid;
+    padding: 1rem;
+}
+
